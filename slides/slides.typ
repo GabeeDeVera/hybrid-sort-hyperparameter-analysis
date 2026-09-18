@@ -1,5 +1,5 @@
 #import "@preview/typslides:1.3.4": *
-#import "../../../lib.typ": problem, aligned_block, numbered_eq, under_construction, table_of_vals, clip_graph, plot_graph, rangef
+#import "lib.typ": problem, aligned_block, numbered_eq, under_construction, table_of_vals, clip_graph, plot_graph, rangef
 #import "@preview/cetz:0.5.2"
 
 // Project configuration
@@ -34,7 +34,7 @@
 ]
 
 #slide(title: "Time Complexity Analysis", outlined: true)[
-  #align(center)[#image("hybrid-sort-visual.png", width:70%)]
+  #align(center)[#image("../assets/images/hybrid-sort-visual.png", width:70%)]
   - See Appendix E for a more detailed analysis.
 ]
 
@@ -261,14 +261,14 @@ def gen_random_list(n):
 
 #slide(title: "Varying the Array Size", outlined: true)[
     #align(center)[
-        #image("wckeycomp-arrsz.png", width: 50%)
+        #image("../assets/images/wckeycomp-arrsz.png", width: 50%)
     ]
     - $f_1(n, s)$ (in green) achieves $R^2 = 0.9978$ for $s = 10$ and varied $n$
     - $f_2(n, s)$ (in red) achieves $R^2 = 0.9997$ for $s = 10$ and varied $n$
 ]
 
 #slide(title: "Varying the Insertion Sort Threshold", outlined: true)[
-    #align(center)[#image("wckeycomp-insort.png", width: 60%)]
+    #align(center)[#image("../assets/images/wckeycomp-insort.png", width: 60%)]
     - $f_1(n, s)$ (in green) achieves $R^2 = 0.8333212567988$ for $n = 10^7$ and varied $s$
     - $f_2(n, s)$ (in red) achieves $R^2 = 0.999999999995$ for $n = 10^7$ and varied $s$
 ]
@@ -285,7 +285,7 @@ def gen_random_list(n):
 
 #slide(title: "Varying the Array Size", outlined: true)[
     #align(center)[
-      #image("avgkeycomp-arrsz.png", width: 70%)
+      #image("../assets/images/avgkeycomp-arrsz.png", width: 70%)
     ]
     - We plotted the average key comparisons divided by $n$ against varying input sizes.
     - Confirms theoretical analysis that if $s$ is fixed, runtime is $O(n log n)$.
@@ -296,7 +296,7 @@ def gen_random_list(n):
 
 #slide(title: "Varying the Insertion Sort Threshold", outlined: true)[
     #align(center)[
-      #image("avgkeycomp-insort.png", width: 45%)
+      #image("../assets/images/avgkeycomp-insort.png", width: 45%)
     ]
     - The above shows *avg. number of key comparisons* for $n=10000$ and varying $s$.
     - We notice that the graph tends to plateau at certain $s$ values, then jump at certain thresholds. We found that these jumps occur when $s approx n / 2^k$ for some $k in bb(Z)$.
@@ -306,14 +306,14 @@ def gen_random_list(n):
 #for i in (3, 4, 5, 6, 7) {
   slide(title: [Varying Both $n$ and $s$ to Determine Optimal $s$], outlined: true)[
     #align(center)[
-      #image("opts-e" + str(i) + ".png")
+      #image("../assets/images/opts-e" + str(i) + ".png")
     ]
   ]
 }
 
 #slide(title: [Varying Both $n$ and $s$ to Determine Optimal $s$], outlined: true)[
     #align(center)[
-      #image("opt-thresh-range-vs-arrsz.png", width: 60%)
+      #image("../assets/images/opt-thresh-range-vs-arrsz.png", width: 60%)
     ]
     - The optimal $s$ value (by center of mass) is $s approx 9.7 approx 10$.
 ]
@@ -325,7 +325,7 @@ def gen_random_list(n):
         $F(n, s) approx a n s + b n log n - b n log s$
       ]
     ]
-    - We apply *least-squares regression* on our running time data across different values of $(n, s)$ using the model $F$.
+    - We apply *least-squares regression* on our running time data across different values of $(n, s)$ using the model $F$. (See Appendix G)
     - We obtain $a approx 1.61 dot 10^(-5)$, $b approx 1.65 dot 10^(-4)$, and $R^2 = 0.9996$, indicating a strong correlation between our model and the data.
     - Using $s = b / a$, we obtain the following as the theoretical optimal value of $s$:
 
@@ -563,6 +563,84 @@ def gen_random_list(n):
   - Let $f(s) = a s - b log s$. Thus, $f'(s) = a - b / s$, which is zero when $s = b / a$.#footnote[We assume $log$ is the natural log for ease of analysis. It makes the calculus cleaner. The choice of base is irrelevant as it is absorbed within the constants $a, b$.]
   - Hence, $f$ is minimized at $s = b / a$.
   - Hence, under this model, *$F$ is also minimized at $s = b / a$ independent of $n$*.
+]
+
+#title-slide[
+  Appendix G: Regression Methodology
+]
+
+#slide(title: "Regression Methodology")[
+  #align(center)[
+    #box(inset: 0.5em, stroke: black)[
+      *Runtime Model*\ 
+      $F(n, s, theta) approx a n s + b n log n - b n log s$, where $theta = vec(delim:"[", a, b)$
+    ]
+  ]
+  - We wish to fit the model above to our data on runtime.
+  - Our runtime data $y$ consists of $(n, s, t_"time")$ tuples.
+]
+
+#slide(title: "Regression Methodology")[
+  #align(center)[
+    #box(inset: 0.5em, stroke: black)[
+      *Goal: Minimize Squared Loss*\ 
+      $C(y, theta) = 1 / abs(y) sum_(i = 1)^(abs(y)) [t_("time", i) - F(n_i, s_i, theta)]^2$
+    ]
+  ]
+  - We model this regression problem as a squared-loss minimization problem. Given fixed $y$, we wish to find the value of $theta$ that minimizes $C(y, theta)$.
+  - We use the *Tensorflow* library to perform *gradient descent* along parameter space.
+]
+
+#slide(title: "Parameter Initialization")[
+  #align(center)[
+    #box(inset: 0.5em, stroke: black)[
+      *Ideal Initialization Property: Vector has Expected Norm $1$*\ 
+      $EE [abs(theta)] = 1$
+    ]
+  ]
+  - We initialize all weights with the same normal distribution with mean $0$---$cal(N)(0, sigma^2)$.
+  - Let $X ~ cal(N)(0, sigma^2)$. Then, notice that:
+  $ EE[X^2] = "Var"(X) + EE[X]^2 = sigma^2 + 0^2 = sigma^2 $ 
+  - Hence, we have:
+  $ abs(EE[theta]) = EE[sqrt(abs(theta)X^2)] = sqrt(abs(theta)EE [X^2]) = sigma sqrt(abs(theta)) = 1 $
+  #align(center)[
+    #box(inset: 0.5em, stroke: black)[
+      $ sigma = 1 / sqrt(abs(theta)) = 1 / sqrt(2) $
+    ]
+  ]
+]
+
+#slide(title: "Initial Issue: Exploding Gradients")[
+  - Directly running gradient descent on our original model leads to *exploding gradients*. This is most likely caused by an unconstrained output space.
+  - Hence, taking inspiration from Artificial Neural Networks, we introduced an *activation function* $sigma$:
+
+  $ sigma(x) := (10 sqrt(10) root(3, x)) / (1 + 10 sqrt(10) abs(root(3, x))) $
+
+  - Intuitively, $sigma$ clamps unconstrained real inputs to $[-1, 1]$. This mitigates large output values, which may lead to exploding gradients during backpropagation.
+  - We also applied *gradient clipping* to prevent uncontrolled explosions.
+]
+
+#slide(title: "Smoothening the Cost Surface")[
+  - With this activation function, we redefined our cost function as follows:
+
+  #align(center)[
+    #box(inset: 0.5em, stroke: black)[
+      *Goal: Minimize Squared Loss*\ 
+      $C_"norm" (y, theta) = 1 / abs(y) sum_(i = 1)^(abs(y)) [sigma(t_("time", i)) - sigma(F(n_i, s_i, theta))]^2$
+    ]
+  ]
+
+  - Intuitively, this *smoothens* the cost surface, facilitating gradient descent.
+  - This smoothening transformation, however, removes the resolution required to hone in on very accurate parameter values $theta$.
+]
+
+#slide(title: "Resolving the Cost Surface")[
+  - *Insight:* Use $C_"norm"$ to capture the *high-level geometry* of the cost surface. Use $C$ to capture the *details* of the cost surface.
+  - This insight motivates the following training procedure:
+    - *Find an Approximate Soln:* Run gradient descent for $1000$ epochs with $C_"norm"$.
+    - *Refine the Approximation:* Run gradient descent for $1000$ epochs with $C$.
+  - This algorithm converges with $R^2 = 0.9996$.
+  - An implementation of this algorithm may be found in `model_regression_analysis.py`.
 ]
 
 // // A simple slide

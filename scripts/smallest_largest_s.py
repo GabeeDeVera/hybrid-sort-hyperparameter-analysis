@@ -13,7 +13,7 @@ def get_com(l):
 
     return ysum / vol
 
-data = pandas.read_csv("performance_data.csv")
+data = pandas.read_csv("../data/performance_data.csv")
 
 nvals = [10**i for i in range(3, 8)]
 
