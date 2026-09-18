@@ -1,5 +1,7 @@
 #import "@preview/typslides:1.3.4": *
-#import "lib.typ": problem, aligned_block, numbered_eq, under_construction, table_of_vals, clip_graph, plot_graph, rangef
+#import "lib.typ": (
+  aligned_block, clip_graph, numbered_eq, plot_graph, problem, rangef, table_of_vals, under_construction,
+)
 #import "@preview/cetz:0.5.2"
 
 // Project configuration
@@ -34,15 +36,15 @@
 ]
 
 #slide(title: "Time Complexity Analysis", outlined: true)[
-  #align(center)[#image("../assets/images/hybrid-sort-visual.png", width:70%)]
+  #align(center)[#image("../assets/images/hybrid-sort-visual.png", width: 70%)]
   - See Appendix E for a more detailed analysis.
 ]
 
 #slide(title: "Time Complexity Analysis", outlined: true)[
-    - The total time complexity is thus *$O(n(s - log s) + n log n) = O(n s + n log n)$*.
-    - For fixed $s$, this simplifies to $O(n log n)$.
-    - Hence it seems minimizing $s - log s$ suffices.
-    - Attempting to minimize $n(s - log s) + n log n$ yields $s=1$.
+  - The total time complexity is thus *$O(n(s - log s) + n log n) = O(n s + n log n)$*.
+  - For fixed $s$, this simplifies to $O(n log n)$.
+  - Hence it seems minimizing $s - log s$ suffices.
+  - Attempting to minimize $n(s - log s) + n log n$ yields $s=1$.
 ]
 
 #slide(title: "Time Complexity Analysis", outlined: true)[
@@ -56,20 +58,20 @@
 ]
 
 #slide(title: "Modeling the Runtime", outlined: true)[
-    #plot_graph(
+  #plot_graph(
     canvas_bottom_left: (-16pt, -80pt),
     canvas_top_right: (144pt, 80pt),
     coord_bottom_left: (-1.0, -5.0),
     coord_top_right: (9.0, 5.0),
     code: (fx, fy, fxi, fyi, fp, fpi) => {
       import cetz.draw: *
-      let p1 = rangef(start: 0.0, stop: 9.0, step: 0.01).map((x) => (x, calc.sqrt(x * x + 1)))
+      let p1 = rangef(start: 0.0, stop: 9.0, step: 0.01).map(x => (x, calc.sqrt(x * x + 1)))
 
       p1 = clip_graph(pts: p1)
 
       line(..p1.map(fp), stroke: (paint: blue))
 
-      let p2 = rangef(start: 0.0, stop: 9.0, step: 0.01).map((x) => (x, x))
+      let p2 = rangef(start: 0.0, stop: 9.0, step: 0.01).map(x => (x, x))
 
       p2 = clip_graph(pts: p2)
 
@@ -79,20 +81,15 @@
 
       line(..((7.5, -4), (8, -4)).map(fp), stroke: (paint: red), name: "func2")
 
+      content(("func.start", 50%, "func.end"), angle: "func.end", padding: 0.3, anchor: "west", [#text(
+        size: 0.65em,
+      )[$f(x)$]])
 
-      content(("func.start", 50%, "func.end"),
-        angle: "func.end",
-        padding: 0.3,
-        anchor: "west",
-        [#text(size: 0.65em)[$f(x)$]])
-      
-      content(("func2.start", 50%, "func2.end"),
-        angle: "func2.end",
-        padding: 0.3,
-        anchor: "west",
-        [#text(size: 0.65em)[$g(x)$]])
-    }
-)
+      content(("func2.start", 50%, "func2.end"), angle: "func2.end", padding: 0.3, anchor: "west", [#text(
+        size: 0.65em,
+      )[$g(x)$]])
+    },
+  )
 
   - *Definition:* Two functions $f, g$ are asymptotically equivalent iff $lim_(n arrow infinity) f(n)/g(n) = 1$
   - *Assume:*
@@ -100,15 +97,18 @@
     - Runtime of merge sort on $n$ elements is asymptotically equivalent to $g(n) = b n ln n$ for some $b in bb(R)$.
 ]
 
-#slide(title :"Modeling the Runtime", outlined: true)[
-  #align(center)[#box(inset: 0.5em, stroke: black)[*New Objective:* Minimize total runtime#footnote[We assume $log$ is the natural log for ease of analysis. It makes the calculus cleaner. The choice of base is irrelevant as it is absorbed within the constants $a, b$.] $ F(n, s) approx a n s + b n log n - b n log s $]]
+#slide(title: "Modeling the Runtime", outlined: true)[
+  #align(center)[#box(
+    inset: 0.5em,
+    stroke: black,
+  )[*New Objective:* Minimize total runtime#footnote[We assume $log$ is the natural log for ease of analysis. It makes the calculus cleaner. The choice of base is irrelevant as it is absorbed within the constants $a, b$.] $ F(n, s) approx a n s + b n log n - b n log s $]]
 
   - Under this model, *$F$ is minimized at $s = b / a$ independent of $n$*. The derivation involves calculus (see Appendix F).
 ]
 
 #slide(title: "Modeling the Runtime", outlined: true)[
 
-    *#align(center)[#box(stroke: black, inset: 0.5em)[Optimal $s$ to minimize runtime: $ s = b / a $]]*
+  *#align(center)[#box(stroke: black, inset: 0.5em)[Optimal $s$ to minimize runtime: $ s = b / a $]]*
 
   - Hence, as the constant of *merge sort ($b$) increases*, the model recommends *increasing $s$* so as to spend less time in merge sort and more time in insertion sort.
   - Meanwhile, as the constant of *insertion sort ($a$) increases*, the model recommends *decreasing $s$* to reduce time spent in insertion sort.
@@ -140,7 +140,7 @@
     columns: (1fr, 2fr, 2fr),
     [*Objective*], [*Theoretical Optimal $s$*], [*Machine-Dependent?*],
     [Minimize Runtime], [$s = b / a$], [Yes],
-    [Minimize Worst-case Key Comparisons], [$s = 1, 2, 3$], [No]
+    [Minimize Worst-case Key Comparisons], [$s = 1, 2, 3$], [No],
   )
 ]
 
@@ -150,70 +150,70 @@
 
 #slide(title: [Algorithm Implementation (`hybrid_merge(a)` Skeleton)], outlined: true)[
   ```python
-s = 10
-keycomp = 0
-def hybrid_merge(a):
-  global keycomp, s
-  if(len(a) <= s):
-      # Insertion Sort
-  else:
-      # Merge Sort
-  return a
+  s = 10
+  keycomp = 0
+  def hybrid_merge(a):
+    global keycomp, s
+    if(len(a) <= s):
+        # Insertion Sort
+    else:
+        # Merge Sort
+    return a
   ```
 ]
 
 #slide(title: "Algorithm Implementation (Insertion Sort Branch)", outlined: true)[
   ```python
-for i in range(1, len(a)):
-  for j in range(i - 1, -1, -1):
-      keycomp += 1
-      if(a[j] > a[j + 1]):
-          a[j], a[j + 1] = a[j + 1], a[j]
-      else:
-          break  
+  for i in range(1, len(a)):
+    for j in range(i - 1, -1, -1):
+        keycomp += 1
+        if(a[j] > a[j + 1]):
+            a[j], a[j + 1] = a[j + 1], a[j]
+        else:
+            break
   ```
 ]
 
 #slide(title: "Algorithm Implementation (Merge Sort Branch Initialization)", outlined: true)[
   ```python
-n = len(a)
-m = n >> 1
-l = a[0:m]
-r = a[m:n]
-l = hybrid_merge(l)
-r = hybrid_merge(r)
-l_size = m
-r_size = n - m
-i = 0
-j = 0
-ptr = 0
+  n = len(a)
+  m = n >> 1
+  l = a[0:m]
+  r = a[m:n]
+  l = hybrid_merge(l)
+  r = hybrid_merge(r)
+  l_size = m
+  r_size = n - m
+  i = 0
+  j = 0
+  ptr = 0
   ```
 ]
 
 #slide(title: "Algorithm Implementation (Merge Sort Branch, Merging)", outlined: true)[
   ```python
-while(i < l_size and j < r_size):
-  keycomp += 1
-  if(l[i] <= r[j]):
-    a[ptr] = l[i]
-    i += 1
-  else:
-    a[ptr] = r[j]
-    j += 1
-  ptr += 1
+  while(i < l_size and j < r_size):
+    keycomp += 1
+    if(l[i] <= r[j]):
+      a[ptr] = l[i]
+      i += 1
+    else:
+      a[ptr] = r[j]
+      j += 1
+    ptr += 1
   ```
 ]
 
 #slide(title: "Algorithm Implementation (Merge Sort Branch, Writing Tail)", outlined: true)[
   ```python
-while(i < ls):
-  a[ptr] = l[i]
-  i += 1
-  ptr += 1
-while(j < rs):
-  a[ptr] = r[j]
-  j += 1
-  ptr += 1
+  while(i < ls):
+    a[ptr] = l[i]
+    i += 1
+    ptr += 1
+  while(j < rs):
+    a[ptr] = r[j]
+    j += 1
+    ptr += 1
   ```
 ]
 
@@ -223,13 +223,13 @@ while(j < rs):
 
 #slide(title: "Input Data Generation", outlined: true)[
   ```python
-from random import randint
+  from random import randint
 
-# largest integer possible in data set
-x = 10**18
+  # largest integer possible in data set
+  x = 10**18
 
-def gen_random_list(n):
-  return list(map(lambda _: randint(1, x), range(n)))
+  def gen_random_list(n):
+    return list(map(lambda _: randint(1, x), range(n)))
   ```
 ]
 
@@ -240,37 +240,39 @@ def gen_random_list(n):
 #slide(title: [Approximations of the Worst-Case Key Comparisons], outlined: true)[
   - By applying some approximations and recurrence unrolling (see Appendix A), we obtain the following approximation for $T(n, s)$:
 
-  $ T(n, s) approx f_1(n, s) := n (log_2(n / s) + log_2(3) - 1) - (3 n) / (2 s) + 1 + n (s / 3 - 1 / 2)  $
+  $ T(n, s) approx f_1(n, s) := n (log_2(n / s) + log_2(3) - 1) - (3 n) / (2 s) + 1 + n (s / 3 - 1 / 2) $
 
   - Notice that $f_1(n, s) = Theta(n s + n log n)$, which agrees with the theoretical.
 
   - We also found the following---better---approximation:
 
   $ T(n, s) approx f_2(n, s) $
-  $ := n (ceil(log_2(n/s)) - 2^(ceil(log_2(n/s)))) - 2 ceil(log_2(n/s)) + 1 + n (s / (2^(ceil(log_2(n/s)) - log_2(n/s) + 1)) - 1/2) $
+  $
+    := n (ceil(log_2(n/s)) - 2^(ceil(log_2(n/s)))) - 2 ceil(log_2(n/s)) + 1 + n (s / (2^(ceil(log_2(n/s)) - log_2(n/s) + 1)) - 1/2)
+  $
 ]
 
 #slide(title: [Approximations of the Worst-Case Key Comparisons], outlined: true)[
-    - Meanwhile, we found the following approximate upper and lower bounds:
+  - Meanwhile, we found the following approximate upper and lower bounds:
 
-    $ T_("upper")(n, s) := n log_2(n/s) - n/s + 1 + n(s/2-1/2) = Theta(n s + n log n) $
-    $ T_("lower")(n, s) := n (log_2(n/s) + 1) - (2 n)/s + 1 + n(s/4-1/2) = Theta(n s + n log n) $
+  $ T_("upper")(n, s) := n log_2(n/s) - n/s + 1 + n(s/2-1/2) = Theta(n s + n log n) $
+  $ T_("lower")(n, s) := n (log_2(n/s) + 1) - (2 n)/s + 1 + n(s/4-1/2) = Theta(n s + n log n) $
 
-    - Hence, we have further evidence that hybrid sort runs in $O(n s + n log n)$.
+  - Hence, we have further evidence that hybrid sort runs in $O(n s + n log n)$.
 ]
 
 #slide(title: "Varying the Array Size", outlined: true)[
-    #align(center)[
-        #image("../assets/images/wckeycomp-arrsz.png", width: 50%)
-    ]
-    - $f_1(n, s)$ (in green) achieves $R^2 = 0.9978$ for $s = 10$ and varied $n$
-    - $f_2(n, s)$ (in red) achieves $R^2 = 0.9997$ for $s = 10$ and varied $n$
+  #align(center)[
+    #image("../assets/images/wckeycomp-arrsz.png", width: 50%)
+  ]
+  - $f_1(n, s)$ (in green) achieves $R^2 = 0.9978$ for $s = 10$ and varied $n$
+  - $f_2(n, s)$ (in red) achieves $R^2 = 0.9997$ for $s = 10$ and varied $n$
 ]
 
 #slide(title: "Varying the Insertion Sort Threshold", outlined: true)[
-    #align(center)[#image("../assets/images/wckeycomp-insort.png", width: 60%)]
-    - $f_1(n, s)$ (in green) achieves $R^2 = 0.8333212567988$ for $n = 10^7$ and varied $s$
-    - $f_2(n, s)$ (in red) achieves $R^2 = 0.999999999995$ for $n = 10^7$ and varied $s$
+  #align(center)[#image("../assets/images/wckeycomp-insort.png", width: 60%)]
+  - $f_1(n, s)$ (in green) achieves $R^2 = 0.8333212567988$ for $n = 10^7$ and varied $s$
+  - $f_2(n, s)$ (in red) achieves $R^2 = 0.999999999995$ for $n = 10^7$ and varied $s$
 ]
 
 #title-slide[
@@ -284,23 +286,23 @@ def gen_random_list(n):
 ]
 
 #slide(title: "Varying the Array Size", outlined: true)[
-    #align(center)[
-      #image("../assets/images/avgkeycomp-arrsz.png", width: 70%)
-    ]
-    - We plotted the average key comparisons divided by $n$ against varying input sizes.
-    - Confirms theoretical analysis that if $s$ is fixed, runtime is $O(n log n)$.
-    // - The above shows *avg. number of key comparisons* for $s=10$ and varying $n$.
-    // - We use a log log plot to show all data points. The slope is $1$, which means that runtime is near-linear in $n$.
-    // - Specifically, if $s$ were fixed, the runtime is $O(n^(1 + epsilon))$. Notice $O(n log n) = O(n^(1+epsilon))$.
+  #align(center)[
+    #image("../assets/images/avgkeycomp-arrsz.png", width: 70%)
+  ]
+  - We plotted the average key comparisons divided by $n$ against varying input sizes.
+  - Confirms theoretical analysis that if $s$ is fixed, runtime is $O(n log n)$.
+  // - The above shows *avg. number of key comparisons* for $s=10$ and varying $n$.
+  // - We use a log log plot to show all data points. The slope is $1$, which means that runtime is near-linear in $n$.
+  // - Specifically, if $s$ were fixed, the runtime is $O(n^(1 + epsilon))$. Notice $O(n log n) = O(n^(1+epsilon))$.
 ]
 
 #slide(title: "Varying the Insertion Sort Threshold", outlined: true)[
-    #align(center)[
-      #image("../assets/images/avgkeycomp-insort.png", width: 45%)
-    ]
-    - The above shows *avg. number of key comparisons* for $n=10000$ and varying $s$.
-    - We notice that the graph tends to plateau at certain $s$ values, then jump at certain thresholds. We found that these jumps occur when $s approx n / 2^k$ for some $k in bb(Z)$.
-    - We notice that the number of key comparisons is minimized at $s=1,2,3$, consistent with our theoretical model.
+  #align(center)[
+    #image("../assets/images/avgkeycomp-insort.png", width: 45%)
+  ]
+  - The above shows *avg. number of key comparisons* for $n=10000$ and varying $s$.
+  - We notice that the graph tends to plateau at certain $s$ values, then jump at certain thresholds. We found that these jumps occur when $s approx n / 2^k$ for some $k in bb(Z)$.
+  - We notice that the number of key comparisons is minimized at $s=1,2,3$, consistent with our theoretical model.
 ]
 
 #for i in (3, 4, 5, 6, 7) {
@@ -312,46 +314,46 @@ def gen_random_list(n):
 }
 
 #slide(title: [Varying Both $n$ and $s$ to Determine Optimal $s$], outlined: true)[
-    #align(center)[
-      #image("../assets/images/opt-thresh-range-vs-arrsz.png", width: 60%)
-    ]
-    - The optimal $s$ value (by center of mass) is $s approx 9.7 approx 10$.
+  #align(center)[
+    #image("../assets/images/opt-thresh-range-vs-arrsz.png", width: 60%)
+  ]
+  - The optimal $s$ value (by center of mass) is $s approx 9.7 approx 10$.
 ]
 
 #slide(title: [Regression Analysis to Determine Optimal $s$], outlined: true)[
-    #align(center)[
-      #box(inset: 0.5em, stroke: black)[
-        *Runtime Model*\ 
-        $F(n, s) approx a n s + b n log n - b n log s$
-      ]
+  #align(center)[
+    #box(inset: 0.5em, stroke: black)[
+      *Runtime Model*\
+      $F(n, s) approx a n s + b n log n - b n log s$
     ]
-    - We apply *least-squares regression* on our running time data across different values of $(n, s)$ using the model $F$. (See Appendix G)
-    - We obtain $a approx 1.61 dot 10^(-5)$, $b approx 1.65 dot 10^(-4)$, and $R^2 = 0.9996$, indicating a strong correlation between our model and the data.
-    - Using $s = b / a$, we obtain the following as the theoretical optimal value of $s$:
+  ]
+  - We apply *least-squares regression* on our running time data across different values of $(n, s)$ using the model $F$. (See Appendix G)
+  - We obtain $a approx 1.61 dot 10^(-5)$, $b approx 1.65 dot 10^(-4)$, and $R^2 = 0.9996$, indicating a strong correlation between our model and the data.
+  - Using $s = b / a$, we obtain the following as the theoretical optimal value of $s$:
 
-    #align(center)[
-      #box(inset: 0.5em, stroke: black)[
-        $s_("opt") = b / a approx 10.2 approx 10$
-      ]
+  #align(center)[
+    #box(inset: 0.5em, stroke: black)[
+      $s_("opt") = b / a approx 10.2 approx 10$
     ]
+  ]
 
-    - Our theoretical model matches our empirical analysis!
+  - Our theoretical model matches our empirical analysis!
 ]
 
 #slide(title: [Comparison of Hybrid Sort With Merge Sort], outlined: true)[
-    #align(center)[= Final Verdict (Performance Comparison for $n=10^7$)]
-    #table(
-        align: center,
-        columns: (1fr, 2fr, 2fr),
-        [*$s$*], [*Average Runtime (s)*], [*Average Key Comparisons*],
-        [$1$\ (Normal Merge Sort)], [$26.420$], [$2.201 dot 10^8$],
-        [$10$\ (Hybrid Sort)], [$24.406$], [$2.264 dot 10^8$],
-    )
-    - We observe a *$7.6%$ increase in performance*, with only a *$2.9%$ increase in the average number of key comparisons* when tested for $n=10^7$.
+  #align(center)[= Final Verdict (Performance Comparison for $n=10^7$)]
+  #table(
+    align: center,
+    columns: (1fr, 2fr, 2fr),
+    [*$s$*], [*Average Runtime (s)*], [*Average Key Comparisons*],
+    [$1$\ (Normal Merge Sort)], [$26.420$], [$2.201 dot 10^8$],
+    [$10$\ (Hybrid Sort)], [$24.406$], [$2.264 dot 10^8$],
+  )
+  - We observe a *$7.6%$ increase in performance*, with only a *$2.9%$ increase in the average number of key comparisons* when tested for $n=10^7$.
 ]
 
 #focus-slide[
-    Thanks for Listening!
+  Thanks for Listening!
 ]
 
 #title-slide[
@@ -397,7 +399,9 @@ def gen_random_list(n):
   $ (partial f) / (partial s) (n, s) = -n / (s ln(2)) + (3n) / (2s^2) + n / 3 $
 
   - Notice:
-  $ s^2 / 3 - s / (ln(2)) + (3) / (2) = 0 arrow.l.r -1 / (s ln(2)) + (3) / (2s^2) + 1 / 3 = 0 arrow.l.r (partial f) / (partial s) (n, s) = -n / (s ln(2)) + (3n) / (2s^2) + n / 3 = 0  $
+  $
+    s^2 / 3 - s / (ln(2)) + (3) / (2) = 0 arrow.l.r -1 / (s ln(2)) + (3) / (2s^2) + 1 / 3 = 0 arrow.l.r (partial f) / (partial s) (n, s) = -n / (s ln(2)) + (3n) / (2s^2) + n / 3 = 0
+  $
 ]
 
 #slide(title: "Worst-Case Analysis of the Number of Key Comparisons")[
@@ -409,107 +413,107 @@ def gen_random_list(n):
 ]
 
 #title-slide[
-    Appendix B: Co-optimality of $s=1,2,3$
+  Appendix B: Co-optimality of $s=1,2,3$
 ]
 
 #slide(title: "Proof of Optimality")[
-    - The heuristic argument in Appendix A, as well as the empirical results, motivates us to find an mathematical proof of optimality.
-    - We employ a technique known as *strong induction* to demonstrate the co-optimality of $s=1$, $s=2$, and $s=3$ under the objective of minimizing the number of key comparisons done.
+  - The heuristic argument in Appendix A, as well as the empirical results, motivates us to find an mathematical proof of optimality.
+  - We employ a technique known as *strong induction* to demonstrate the co-optimality of $s=1$, $s=2$, and $s=3$ under the objective of minimizing the number of key comparisons done.
 ]
 
 #slide(title: "Proof of Optimality")[
-    - Let $T(n, s)$ be the worst-case number of key comparisons of hybrid sort on an array with $n$ elements and an insertion sort threshold of at most $s$ elements.
-    - Recall from Appendix A that:
+  - Let $T(n, s)$ be the worst-case number of key comparisons of hybrid sort on an array with $n$ elements and an insertion sort threshold of at most $s$ elements.
+  - Recall from Appendix A that:
 
-    $ T(n, s) = cases(n - 1 + T(floor(n / 2), s) + T(ceil(n/2), s) "if" n > s, (n(n - 1)) / 2 "if" n <= s) $
+  $ T(n, s) = cases(n - 1 + T(floor(n / 2), s) + T(ceil(n/2), s) "if" n > s, (n(n - 1)) / 2 "if" n <= s) $
 
-    - We wish to show, for all integers $s >= 1$ and for all $n >= 1$, that $T(n, s) <= T(n, s + 1)$.
-    - Let $s$ be an arbitrary integer $>= 1$. We proceed by strong induction on $n$.
-    - If $1 <= n <= s: T(n, s) = T(n, s + 1) = (n(n - 1)) / 2$, so $T(n, s) <= T(n, s + 1)$.
+  - We wish to show, for all integers $s >= 1$ and for all $n >= 1$, that $T(n, s) <= T(n, s + 1)$.
+  - Let $s$ be an arbitrary integer $>= 1$. We proceed by strong induction on $n$.
+  - If $1 <= n <= s: T(n, s) = T(n, s + 1) = (n(n - 1)) / 2$, so $T(n, s) <= T(n, s + 1)$.
 ]
 
 #slide(title: "Proof of Optimality")[
-    - If $n = s + 1$: $T(n, s + 1) = (s(s + 1))/2$ and $T(n, s) = s + T(floor((s + 1) / 2), s) + T(ceil((s + 1) / 2), s)$.
-    - We note that $f(x) = (x(x - 1)) / 2$ is nondecreasing over $x >= 0$. Hence, $x >= y >= 0 arrow f(x) >= f(y)$.
+  - If $n = s + 1$: $T(n, s + 1) = (s(s + 1))/2$ and $T(n, s) = s + T(floor((s + 1) / 2), s) + T(ceil((s + 1) / 2), s)$.
+  - We note that $f(x) = (x(x - 1)) / 2$ is nondecreasing over $x >= 0$. Hence, $x >= y >= 0 arrow f(x) >= f(y)$.
 ]
 
 #slide(title: "Proof of Optimality")[
-    - Case 1: $s >= 4$
-    - Since $floor((s + 1) / 2) <= ceil((s + 1) / 2) <= s$ for $s >= 1$,
-    $T(n, s) = s + (floor((s + 1) / 2)(floor((s + 1) / 2) -1)) / 2 + (ceil((s + 1) / 2) (ceil((s + 1) / 2) - 1)) / 2 $
-    
-    $<= s + (ceil((s + 1) / 2) (ceil((s + 1) / 2) - 1))$
-    
-    $<= s + ((s + 2) / 2)((s + 2) / 2 - 1)$
-    
-    $= (s / 2 + 3)(s / 2)$
+  - Case 1: $s >= 4$
+  - Since $floor((s + 1) / 2) <= ceil((s + 1) / 2) <= s$ for $s >= 1$,
+  $T(n, s) = s + (floor((s + 1) / 2)(floor((s + 1) / 2) -1)) / 2 + (ceil((s + 1) / 2) (ceil((s + 1) / 2) - 1)) / 2$
 
-    $<= (s + 1)(s / 2)$ (valid for $s >= 4$)
-    
-    $= (s(s + 1)) / 2$
+  $<= s + (ceil((s + 1) / 2) (ceil((s + 1) / 2) - 1))$
 
-    $= T(n, s + 1)$
-    - Hence, $T(n, s) <= T(n, s + 1)$ for $n = s + 1$.
+  $<= s + ((s + 2) / 2)((s + 2) / 2 - 1)$
+
+  $= (s / 2 + 3)(s / 2)$
+
+  $<= (s + 1)(s / 2)$ (valid for $s >= 4$)
+
+  $= (s(s + 1)) / 2$
+
+  $= T(n, s + 1)$
+  - Hence, $T(n, s) <= T(n, s + 1)$ for $n = s + 1$.
 ]
 
 #slide(title: "Proof of Optimality")[
-    - Case 2: $s <= 3$
-    - We also have $T(2, 1) = 1 <= 1 = T(2, 2)$; and,
-    - $T(3, 2) = 3 <= 3 = T(3, 3)$; and,
-    - $T(4, 3) = 5 <= 6 = T(4, 4)$
-    - Hence, $T(n, s) <= T(n, s + 1)$ for $n = s + 1$ and $s <= 3$.
-    - As we have exhausted all cases, $T(n, s) <= T(n, s + 1)$ for all integers $s >= 1$.
+  - Case 2: $s <= 3$
+  - We also have $T(2, 1) = 1 <= 1 = T(2, 2)$; and,
+  - $T(3, 2) = 3 <= 3 = T(3, 3)$; and,
+  - $T(4, 3) = 5 <= 6 = T(4, 4)$
+  - Hence, $T(n, s) <= T(n, s + 1)$ for $n = s + 1$ and $s <= 3$.
+  - As we have exhausted all cases, $T(n, s) <= T(n, s + 1)$ for all integers $s >= 1$.
 ]
 
 #slide(title: "Proof of Optimality")[
-    - Finally, let $n$ be an arbitrary integer $> s + 1$. Suppose $T(x, s) <= T(x, s + 1)$ for $1 <= x < n$. As $n > s + 1$, $n >= s + 2 >= 1 + 2 = 3$.  Hence, $floor(n / 2) <= ceil(n / 2) < n$.
-    - Thus, 
-    
-    $T(n, s) = n - 1 + T(floor(n / 2), s) + T(ceil(n / 2), s)$
+  - Finally, let $n$ be an arbitrary integer $> s + 1$. Suppose $T(x, s) <= T(x, s + 1)$ for $1 <= x < n$. As $n > s + 1$, $n >= s + 2 >= 1 + 2 = 3$.  Hence, $floor(n / 2) <= ceil(n / 2) < n$.
+  - Thus,
 
-    $<= n - 1 + T(floor(n / 2), s + 1) + T(ceil(n / 2), s + 1)$ (by the inductive hypothesis)
+  $T(n, s) = n - 1 + T(floor(n / 2), s) + T(ceil(n / 2), s)$
 
-    $= T(n, s + 1) $
+  $<= n - 1 + T(floor(n / 2), s + 1) + T(ceil(n / 2), s + 1)$ (by the inductive hypothesis)
 
-    - Hence, $T(n, s) <= T(n, s + 1)$.
+  $= T(n, s + 1)$
 
-    - By the principle of strong mathematical induction, $T(n, s) <= T(n, s + 1)$ holds for all $n$ and for all $s$. $square$
+  - Hence, $T(n, s) <= T(n, s + 1)$.
+
+  - By the principle of strong mathematical induction, $T(n, s) <= T(n, s + 1)$ holds for all $n$ and for all $s$. $square$
 ]
 
 #slide(title: "Proof of Co-optimality")[
-    - We wish to show $T(n, 1) = T(n, 2) = T(n, 3)$ for all integers $n >= 1$.
-    - First, we have $T(1, s) = 0$, $T(2, s) = 1$, $T(3, s) = 3$, and $T(4, s) = 5$ for $s<= 3$.
-    - Hence we have proven the statement for $ n<=4$.
-    - We proceed once again with strong mathematical induction.
+  - We wish to show $T(n, 1) = T(n, 2) = T(n, 3)$ for all integers $n >= 1$.
+  - First, we have $T(1, s) = 0$, $T(2, s) = 1$, $T(3, s) = 3$, and $T(4, s) = 5$ for $s<= 3$.
+  - Hence we have proven the statement for $n<=4$.
+  - We proceed once again with strong mathematical induction.
 ]
 
 #slide(title: "Proof of Co-optimality")[
-    - Let $n$ be an arbitrary integer $> 4$. Suppose $T(x, 1) = T(x, 2) = T(x, 3)$ for $1 <= x < n$. As $n > 4$, $n >= 5$.
-    - Hence, $floor(n / 2) <= ceil(n / 2) < n$.
-    - Further, as $s <= 3$, $n > s + 1$.
-    - Thus, 
-    
-    $T(n, 1) = n - 1 + T(floor(n / 2), 1) + T(ceil(n / 2), 1)$
+  - Let $n$ be an arbitrary integer $> 4$. Suppose $T(x, 1) = T(x, 2) = T(x, 3)$ for $1 <= x < n$. As $n > 4$, $n >= 5$.
+  - Hence, $floor(n / 2) <= ceil(n / 2) < n$.
+  - Further, as $s <= 3$, $n > s + 1$.
+  - Thus,
 
-    $= n - 1 + T(floor(n / 2), 2) + T(ceil(n / 2), 2)$ (by the inductive hypothesis)
+  $T(n, 1) = n - 1 + T(floor(n / 2), 1) + T(ceil(n / 2), 1)$
 
-    $= T(n, 2) $
+  $= n - 1 + T(floor(n / 2), 2) + T(ceil(n / 2), 2)$ (by the inductive hypothesis)
 
-    $= n - 1 + T(floor(n / 2), 2) + T(ceil(n / 2), 2)$
+  $= T(n, 2)$
 
-    $= n - 1 + T(floor(n / 2), 3) + T(ceil(n / 2), 3)$ (by the inductive hypothesis)
+  $= n - 1 + T(floor(n / 2), 2) + T(ceil(n / 2), 2)$
 
-    $= T(n, 3) $
+  $= n - 1 + T(floor(n / 2), 3) + T(ceil(n / 2), 3)$ (by the inductive hypothesis)
 
-    - Hence, $T(n, 1) = T(n, 2) = T(n, 3)$.
+  $= T(n, 3)$
 
-    - By the principle of strong mathematical induction, $T(n, 1) = T(n, 2) = T(n, 3)$ holds for all $n$. $square$
+  - Hence, $T(n, 1) = T(n, 2) = T(n, 3)$.
 
-    - Hence, indeed, $s = 1$, $s = 2$, and $s = 3$ all attain the optimal worst-case number of comparisons.
+  - By the principle of strong mathematical induction, $T(n, 1) = T(n, 2) = T(n, 3)$ holds for all $n$. $square$
 
-    - Further, as $T(4, 3) = 5 < 6 = T(4, 4) <= T(4, s)$ for $s >= 4$, $T(4, 3) < T(4, s)$ for $s >= 4$.
-    - Hence, none of $s >= 4$ could be optimal.
-    - Hence, $s=1,2,3$ are the only $s$ that achieve optimality. $qed$
+  - Hence, indeed, $s = 1$, $s = 2$, and $s = 3$ all attain the optimal worst-case number of comparisons.
+
+  - Further, as $T(4, 3) = 5 < 6 = T(4, 4) <= T(4, s)$ for $s >= 4$, $T(4, 3) < T(4, s)$ for $s >= 4$.
+  - Hence, none of $s >= 4$ could be optimal.
+  - Hence, $s=1,2,3$ are the only $s$ that achieve optimality. $qed$
 ]
 
 #title-slide[
@@ -517,12 +521,12 @@ def gen_random_list(n):
 ]
 
 #slide(title: [Computing $R^2$])[
-    - Where applicable, we compute the coefficient of determination, $R^2$,  of a model (approximation) $Y_("pred")$ with respect to ground truth (the actual data) $Y$ as:
-    
-    $ R^2 := 1 - (S S_"resid") / (S S_"tot") = 1 - (EE [(Y - Y_"pred")^2]) / ("Var"(Y))  $
+  - Where applicable, we compute the coefficient of determination, $R^2$,  of a model (approximation) $Y_("pred")$ with respect to ground truth (the actual data) $Y$ as:
 
-    - The statistic $R^2 = a$ could be interpreted as "$Y_"pred"$ explains $(100a) %$ of the variance in $Y$".
-    - The closer $R^2$ is to $1$, the better the fit.
+  $ R^2 := 1 - (S S_"resid") / (S S_"tot") = 1 - (EE [(Y - Y_"pred")^2]) / ("Var"(Y)) $
+
+  - The statistic $R^2 = a$ could be interpreted as "$Y_"pred"$ explains $(100a) %$ of the variance in $Y$".
+  - The closer $R^2$ is to $1$, the better the fit.
 ]
 
 #title-slide[
@@ -536,11 +540,13 @@ def gen_random_list(n):
   - We test the algorithm over $n in N_("tests")$, where $N_("tests") := {10^3, 10^4, 10^5, 10^6, 10^7}$.
   - Finally, we compute the centre of mass as:
 
-  $ overline(s) = (sum_(n in N_("tests")) (([max "Opt"(n)][1 + max "Opt"(n)]) / 2 - ([min "Opt"(n)][-1 + min "Opt"(n)]) / 2)) / (sum_(n in N_("tests")) ([max "Opt"(n)] - [min "Opt"(n)] + 1)) $
+  $
+    overline(s) = (sum_(n in N_("tests")) (([max "Opt"(n)][1 + max "Opt"(n)]) / 2 - ([min "Opt"(n)][-1 + min "Opt"(n)]) / 2)) / (sum_(n in N_("tests")) ([max "Opt"(n)] - [min "Opt"(n)] + 1))
+  $
 ]
 
 #title-slide[
-    Appendix E: Detailed Time Complexity Analysis of Hybrid Sort
+  Appendix E: Detailed Time Complexity Analysis of Hybrid Sort
 ]
 
 #slide(title: [Detailed Time Complexity Analysis of Hybrid Sort])[
@@ -548,13 +554,16 @@ def gen_random_list(n):
 ]
 
 #title-slide[
-    Appendix F: Modeling the Runtime
+  Appendix F: Modeling the Runtime
 ]
 
-#slide(title :"Modeling the Runtime")[
-  - *Model Limitation:* Assumes fixed constants $a, b$. Variance in runtime may occur due to hardware differences and specific implementation details. 
+#slide(title: "Modeling the Runtime")[
+  - *Model Limitation:* Assumes fixed constants $a, b$. Variance in runtime may occur due to hardware differences and specific implementation details.
   - *Justification:* Since we run merge sort for large enough $n$ and insertion sort on multiple instances, variations from the asymptotic behavior should tend to disappear.
-  #align(center)[#box(inset: 0.5em, stroke: black)[*New Objective:* Minimize total runtime $ F(n, s) approx a n s + b n log n - b n log s $]]
+  #align(center)[#box(
+    inset: 0.5em,
+    stroke: black,
+  )[*New Objective:* Minimize total runtime $ F(n, s) approx a n s + b n log n - b n log s $]]
 ]
 
 #slide(title: "Modeling the Runtime")[
@@ -572,8 +581,8 @@ def gen_random_list(n):
 #slide(title: "Regression Methodology")[
   #align(center)[
     #box(inset: 0.5em, stroke: black)[
-      *Runtime Model*\ 
-      $F(n, s, theta) approx a n s + b n log n - b n log s$, where $theta = vec(delim:"[", a, b)$
+      *Runtime Model*\
+      $F(n, s, theta) approx a n s + b n log n - b n log s$, where $theta = vec(delim: "[", a, b)$
     ]
   ]
   - We wish to fit the model above to our data on runtime.
@@ -583,7 +592,7 @@ def gen_random_list(n):
 #slide(title: "Regression Methodology")[
   #align(center)[
     #box(inset: 0.5em, stroke: black)[
-      *Goal: Minimize Squared Loss*\ 
+      *Goal: Minimize Squared Loss*\
       $C(y, theta) = 1 / abs(y) sum_(i = 1)^(abs(y)) [t_("time", i) - F(n_i, s_i, theta)]^2$
     ]
   ]
@@ -594,13 +603,13 @@ def gen_random_list(n):
 #slide(title: "Parameter Initialization")[
   #align(center)[
     #box(inset: 0.5em, stroke: black)[
-      *Ideal Initialization Property: Vector has Expected Norm $1$*\ 
+      *Ideal Initialization Property: Vector has Expected Norm $1$*\
       $EE [abs(theta)] = 1$
     ]
   ]
   - We initialize all weights with the same normal distribution with mean $0$---$cal(N)(0, sigma^2)$.
   - Let $X ~ cal(N)(0, sigma^2)$. Then, notice that:
-  $ EE[X^2] = "Var"(X) + EE[X]^2 = sigma^2 + 0^2 = sigma^2 $ 
+  $ EE[X^2] = "Var"(X) + EE[X]^2 = sigma^2 + 0^2 = sigma^2 $
   - Hence, we have:
   $ abs(EE[theta]) = EE[sqrt(abs(theta)X^2)] = sqrt(abs(theta)EE [X^2]) = sigma sqrt(abs(theta)) = 1 $
   #align(center)[
@@ -614,7 +623,11 @@ def gen_random_list(n):
   - Directly running gradient descent on our original model leads to *exploding gradients*. This is most likely caused by an unconstrained output space.
   - Hence, taking inspiration from Artificial Neural Networks, we introduced an *activation function* $sigma$:
 
-  $ sigma(x) := (10 sqrt(10) root(3, x)) / (1 + 10 sqrt(10) abs(root(3, x))) $
+  #align(center)[
+    #box(inset: 0.5em, stroke: black)[
+      $ sigma(x) := (10 sqrt(10) root(3, x)) / (1 + 10 sqrt(10) abs(root(3, x))) $
+    ]
+  ]
 
   - Intuitively, $sigma$ clamps unconstrained real inputs to $[-1, 1]$. This mitigates large output values, which may lead to exploding gradients during backpropagation.
   - We also applied *gradient clipping* to prevent uncontrolled explosions.
@@ -625,7 +638,7 @@ def gen_random_list(n):
 
   #align(center)[
     #box(inset: 0.5em, stroke: black)[
-      *Goal: Minimize Squared Loss*\ 
+      *Goal: Minimize Squared Loss*\
       $C_"norm" (y, theta) = 1 / abs(y) sum_(i = 1)^(abs(y)) [sigma(t_("time", i)) - sigma(F(n_i, s_i, theta))]^2$
     ]
   ]
@@ -639,11 +652,45 @@ def gen_random_list(n):
   - This insight motivates the following training procedure:
     - *Find an Approximate Soln:* Run gradient descent for $1000$ epochs with $C_"norm"$.
     - *Refine the Approximation:* Run gradient descent for $1000$ epochs with $C$.
-  - This algorithm converges with $R^2 = 0.9996$.
-  - An implementation of this algorithm may be found in `model_regression_analysis.py`.
+  - *Analogy:* To find the highest point in a mountain range, first look for the correct mountain, then find the highest point on that mountain.
 ]
 
-#slide(title: "A Note on Practicality")[
+#slide(title: "Implicit Reduction of the Search Space")[
+  - Another observation is that the optimal $a, b$ satisfy *$a >= 0$ and $b >= 0$*.
+  - The model is *unaware* of this fact and may search regions where $a$ or $b$ are negative.
+  - We believed simply clipping $a$ and $b$ to nonnegative values would be too destructive, potentially leading to gradient descent getting stuck around the boundaries of the admissible parameter space.
+  - *Insight:* Define *two new parameters $a'$ and $b'$* satisfying $a'^2 = a, b'^2 = b$.
+  - Hence, we *implicitly clip* the parameters by exploiting the nonnegativity of $y=x^2$.
+
+  #align(center)[
+    #box(inset: 0.5em, stroke: black)[
+      *Updated Runtime Model*\
+      $F(n, s, theta') approx a'^2 n s + b'^2 n log n - b'^2 n log s$, where $theta' = vec(delim: "[", a', b')$
+    ]
+  ]
+]
+
+#slide(title: "Summary of Algorithm")[
+  #align(center)[
+    #box(inset: 0.5em, stroke: black)[
+      *Runtime Model*\
+      $F(n, s, theta') approx a'^2 n s + b'^2 n log n - b'^2 n log s$, where $theta' = vec(delim: "[", a', b')$\
+      
+      *Cost Functions*\
+      $C (y, theta) = 1 / abs(y) sum_(i = 1)^(abs(y)) [t_("time", i) - F(n_i, s_i, theta)]^2$\ 
+
+      $C_"norm" (y, theta) = 1 / abs(y) sum_(i = 1)^(abs(y)) [sigma(t_("time", i)) - sigma(F(n_i, s_i, theta))]^2$
+    ]
+  ]
+  - *Goal:* Find $theta' in bb(R)^2$ that minimizes $C(y, theta')$.
+  - *The Algorithm:*
+    1. Run Gradient Descent under the cost function $C_("norm") (y, theta')$, with the initial weights sampled from $cal(N)(0, 1 / sqrt(2))$.
+    2. Run Gradient Descent under the cost function $C (y, theta')$, with the initial weights set to the final weight values from the first step.
+]
+
+#slide(title: "Results of Regression Analysis")[
+  - This algorithm converges with $R^2 = 0.9996$.
+  - An implementation of this algorithm may be found in `model_regression_analysis.py`.
   - We acknowledge the existence of exact analytical methods to minimize our objective function, which is linear-in-form.
   - We have opted to use Tensorflow as a means of exploration (and for fun)!
 ]
@@ -681,7 +728,7 @@ def gen_random_list(n):
 //   //   theme: "bluey",
 //   //   ...
 //   // )
-  
+
 
 //   - Or just use *your own theme color*:
 //     - `theme: rgb("30500B")`
