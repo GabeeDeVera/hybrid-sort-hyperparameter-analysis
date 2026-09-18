@@ -643,6 +643,11 @@ def gen_random_list(n):
   - An implementation of this algorithm may be found in `model_regression_analysis.py`.
 ]
 
+#slide(title: "A Note on Practicality")[
+  - We acknowledge the existence of exact analytical methods to minimize our objective function, which is linear-in-form.
+  - We have opted to use Tensorflow as a means of exploration (and for fun)!
+]
+
 // // A simple slide
 // #slide[
 //   - This is a simple `slide` with no title.
